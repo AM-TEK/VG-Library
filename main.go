@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -97,6 +98,10 @@ func rankVideoGame(c *gin.Context) {
 //create routers with the help of gin package
 func main() {
 	router := gin.Default()
+	// CORS middleware
+    config := cors.DefaultConfig()
+    config.AllowOrigins = []string{"http://localhost:5173"}
+    router.Use(cors.New(config))
 	router.GET("/videoGames", getVideoGames)
 	router.GET("/videoGames/:id", videoGameById)
 	router.POST("/videoGames", createVideoGame)
