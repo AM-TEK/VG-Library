@@ -10,11 +10,11 @@ const VideoGameList = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Video Games</h1>
-      <ul>
+    <div className="bg-gray-200 p-8">
+      <h1 className="text-2xl font-bold">Video Games</h1>
+      <ul className="mt-4">
         {videoGames.map(videoGame => (
-          <li key={videoGame.id}>
+          <li key={videoGame.id} className="text-lg text-gray-800">
             {videoGame.title} - {videoGame.developer} ({videoGame.year})
           </li>
         ))}

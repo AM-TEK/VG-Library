@@ -1,12 +1,11 @@
 
-import './App.css'
 import VideoGameList from './components/VideoGameList';
 
 function App() {
 
   return (
-    <div>
-      <h1>My Video Game Collection</h1>
+    <div className='bg-red-300'>
+      <h1 className="font-bold p-8 text-center text-3xl">Video Game Library</h1>
       <VideoGameList />
     </div>
   );
