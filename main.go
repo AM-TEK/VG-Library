@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//create struct to store video games
+//create struct to represent a video game
 type videoGame struct{
 	ID			string	`json:"id"`
 	Title		string	`json:"title"`
@@ -19,7 +19,7 @@ type videoGame struct{
 	Rank		int		`json:"rank"`
 }
 
-//Data Structure for videogames
+//Initialize a slice of 'videoGames' containing instances of video game struct
 var videoGames = []videoGame{
 	{ID: "6", Title: "Super Mario Bros. 3", Developer: "Nintendo", Year: 1990, Rank: 6},
 	{ID: "1", Title: "Sonic the Hedgehog", Developer: "Sega", Year: 1991, Rank: 4},
@@ -42,26 +42,22 @@ var videoGames = []videoGame{
 	{ID: "19", Title: "Fallout 3", Developer: "Bethesda Game Studios", Year: 2008, Rank: 19},
 	{ID: "20", Title: "Uncharted 2: Among Thieves", Developer: "Naughty Dog", Year: 2009, Rank: 20},
 }
-
-//api call to get video games with gin context middleware, also utilizing JSON methods
+//Handles the `GET /videoGames` endpoint by returning the list of all video games
 func getVideoGames(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, videoGames)
 }
-
+//Handles the `GET /videoGames/:id` endpoint by returning a specific video game by its ID
 func videoGameById(c *gin.Context) {
 	id := c.Param("id")
 	videoGame, err := getVideoGameById(id)
-
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Video game not found"})
 		return
 	}
-
 	c.IndentedJSON(http.StatusOK, videoGame)
 }
-
+//Helper function to find a video game by its ID
 func getVideoGameById(id string) (*videoGame, error) {
-	
 	for i, vg := range videoGames {
 		if vg.ID == id {
 			return &videoGames[i], nil
@@ -69,15 +65,10 @@ func getVideoGameById(id string) (*videoGame, error) {
 	}
 	return nil, errors.New("video game not found")
 }
-
-
-
-
+//Handles the `PATCH /rank` endpoint by updating the rank of a video game and adjusting the ranks of other video games accordingly
 func rankVideoGame(c *gin.Context) {
 	id := c.Query("id")
 	rank, _ := strconv.Atoi(c.Query("rank"))
-
-	// Find the video game to update
 	var videoGameToUpdate *videoGame
 	for i := range videoGames {
 			if videoGames[i].ID == id {
@@ -85,46 +76,34 @@ func rankVideoGame(c *gin.Context) {
 					break
 			}
 	}
-
 	if videoGameToUpdate == nil {
 			c.Status(http.StatusNotFound)
 			return
 	}
-
-	// If the new rank is greater than the current rank
 	if rank > videoGameToUpdate.Rank {
-			// Shift the ranks of objects between the current rank and the new rank
 			for i := range videoGames {
 					if videoGames[i].Rank > videoGameToUpdate.Rank && videoGames[i].Rank <= rank {
 							videoGames[i].Rank--
 					}
 			}
 	} else if rank < videoGameToUpdate.Rank {
-			// Shift the ranks of objects between the new rank and the current rank
 			for i := range videoGames {
 					if videoGames[i].Rank >= rank && videoGames[i].Rank < videoGameToUpdate.Rank {
 							videoGames[i].Rank++
 					}
 			}
 	}
-
-	// Update the rank of the video game
 	videoGameToUpdate.Rank = rank
-
 	c.Status(http.StatusOK)
 }
-
-
-
-
 
 // create routers with the help of gin package
 func main() {
 	router := gin.Default()
 	// CORS middleware
-    config := cors.DefaultConfig()
-    config.AllowOrigins = []string{"http://localhost:5173"}
-    router.Use(cors.New(config))
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://localhost:5173"}
+	router.Use(cors.New(config))
 
 	router.GET("/videoGames", getVideoGames)
 	router.GET("/videoGames/:id", videoGameById)
