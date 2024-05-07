@@ -17,13 +17,6 @@ const VideoGameList = () => {
       return;
     }
   
-    // Check if the new rank is already used by another video game
-    // const isRankUsed = videoGames.some(videoGame => videoGame.id !== id && videoGame.rank == newRank);
-    // if (isRankUsed) {
-    //   console.error('Invalid rank. Rank must be unique among video games.');
-    //   return;
-    // }
-  
     fetch(`http://localhost:8082/rank?id=${id}&rank=${newRank}`, {
       method: 'PATCH',
     })
