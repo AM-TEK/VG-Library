@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 	// "sort"
-	// "strconv"
+	"strconv"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -70,6 +70,54 @@ func getVideoGameById(id string) (*videoGame, error) {
 	return nil, errors.New("video game not found")
 }
 
+
+
+
+func rankVideoGame(c *gin.Context) {
+	id := c.Query("id")
+	rank, _ := strconv.Atoi(c.Query("rank"))
+
+	// Find the video game to update
+	var videoGameToUpdate *videoGame
+	for i := range videoGames {
+			if videoGames[i].ID == id {
+					videoGameToUpdate = &videoGames[i]
+					break
+			}
+	}
+
+	if videoGameToUpdate == nil {
+			c.Status(http.StatusNotFound)
+			return
+	}
+
+	// If the new rank is greater than the current rank
+	if rank > videoGameToUpdate.Rank {
+			// Shift the ranks of objects between the current rank and the new rank
+			for i := range videoGames {
+					if videoGames[i].Rank > videoGameToUpdate.Rank && videoGames[i].Rank <= rank {
+							videoGames[i].Rank--
+					}
+			}
+	} else if rank < videoGameToUpdate.Rank {
+			// Shift the ranks of objects between the new rank and the current rank
+			for i := range videoGames {
+					if videoGames[i].Rank >= rank && videoGames[i].Rank < videoGameToUpdate.Rank {
+							videoGames[i].Rank++
+					}
+			}
+	}
+
+	// Update the rank of the video game
+	videoGameToUpdate.Rank = rank
+
+	c.Status(http.StatusOK)
+}
+
+
+
+
+
 // create routers with the help of gin package
 func main() {
 	router := gin.Default()
@@ -80,7 +128,8 @@ func main() {
 
 	router.GET("/videoGames", getVideoGames)
 	router.GET("/videoGames/:id", videoGameById)
+	router.PATCH("/rank", rankVideoGame)
 	
-	router.Run("localhost:8080")
+	router.Run("localhost:8082")
 }
 
